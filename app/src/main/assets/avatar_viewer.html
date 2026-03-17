@@ -9,7 +9,7 @@
             margin: 0; 
             background-color: transparent; 
             overflow: hidden; 
-            pointer-events: none; /* Bloquea toda interacción táctil en la página */
+            pointer-events: none; 
             user-select: none;
             -webkit-user-select: none;
         }
@@ -20,7 +20,6 @@
             --poster-color: transparent;
         }
     </style>
-    <!-- Import the component -->
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 </head>
 <body>
@@ -28,9 +27,9 @@
         id="avatar"
         src="https://models.readyplayer.me/699da146f005c9608f5ee8aa.glb" 
         alt="Ready Player Me Avatar"
-        camera-orbit="0deg 80deg 1.2m" 
-        camera-target="0m 1.6m 0m"
-        field-of-view="20deg"
+        camera-orbit="0deg 75deg 0.7m" 
+        camera-target="0m 1.65m 0m"
+        field-of-view="30deg"
         shadow-intensity="1"
         environment-image="neutral"
         exposure="1"
@@ -38,7 +37,6 @@
     </model-viewer>
 
     <script>
-        // Función para cambiar el modelo si es necesario
         function loadModel(url) {
             const modelViewer = document.querySelector('#avatar');
             modelViewer.src = url;
