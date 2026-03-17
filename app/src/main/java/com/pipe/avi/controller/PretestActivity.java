@@ -1,0 +1,251 @@
+package com.pipe.avi.controller;
+
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.pipe.avi.R;
+import com.pipe.avi.network.ApiClient;
+import com.pipe.avi.network.TestApi;
+import com.pipe.avi.utils.AvatarHelper;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class PretestActivity extends AppCompatActivity {
+
+    private Button btnContinuarTest;
+    private ProgressBar progressContinuar;
+
+    private EditText pregunta1, pregunta2;
+    private RadioGroup pregunta3, pregunta4, pregunta5;
+    private WebView webAvatar;
+    private AvatarHelper avatarHelper;
+
+    private int aspiranteId;
+    private String token;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_pretest);
+
+        aspiranteId = getIntent().getIntExtra("aspiranteId", 0);
+        
+        SharedPreferences prefs = getSharedPreferences("app", MODE_PRIVATE);
+        token = prefs.getString("token", "");
+
+        if (aspiranteId == 0) {
+            Toast.makeText(this,"Error: aspiranteId no recibido",Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
+        btnContinuarTest = findViewById(R.id.btnContinuarTest);
+        progressContinuar = findViewById(R.id.progressContinuar);
+
+        pregunta1 = findViewById(R.id.pregunta1);
+        pregunta2 = findViewById(R.id.pregunta2);
+        pregunta3 = findViewById(R.id.pregunta3);
+        pregunta4 = findViewById(R.id.pregunta4);
+        pregunta5 = findViewById(R.id.pregunta5);
+        webAvatar = findViewById(R.id.webAvatar);
+
+        avatarHelper = new AvatarHelper(this, webAvatar);
+        
+        // El avatar saluda al entrar
+        reproducirVoz("bienvenida_pretest");
+
+        // Al enfocar cada pregunta de texto, el avatar la habla
+        pregunta1.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) reproducirVoz("pretest_p1");
+        });
+        pregunta2.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) reproducirVoz("pretest_p2");
+        });
+        
+        // Las preguntas de opción múltiple se manejan en animarRadioGroup para evitar redundancia
+
+        // Animación de entrada de pantalla
+        findViewById(R.id.main).startAnimation(
+                AnimationUtils.loadAnimation(this, R.anim.fade_in)
+        );
+
+        animarRadioGroup(pregunta3, "pretest_p3");
+        animarRadioGroup(pregunta4, "pretest_p4");
+        animarRadioGroup(pregunta5, "pretest_p5");
+
+        btnContinuarTest.setOnClickListener(v -> {
+            Animation press = AnimationUtils.loadAnimation(this, R.anim.boton_press);
+            v.startAnimation(press);
+            validarYContinuar();
+        });
+    }
+
+    private void reproducirVoz(String nombreAudio) {
+        int resId = getResources().getIdentifier(nombreAudio, "raw", getPackageName());
+        if (resId != 0) {
+            avatarHelper.cargarAvatarConSonido(resId);
+        } else {
+            Log.w("AVATAR_VOZ", "No se encontró el archivo de audio: " + nombreAudio);
+        }
+    }
+
+    private void animarRadioGroup(RadioGroup group, String audioPregunta){
+        group.setOnCheckedChangeListener((radioGroup, checkedId) -> {
+            RadioButton seleccionado = findViewById(checkedId);
+            if(seleccionado != null){
+                Animation zoom = AnimationUtils.loadAnimation(this, R.anim.zoom_in);
+                seleccionado.startAnimation(zoom);
+                
+                // Reproducir voz de la pregunta al interactuar
+                reproducirVoz(audioPregunta);
+            }
+        });
+    }
+
+    private void validarYContinuar() {
+        boolean valido = true;
+        Animation shake = AnimationUtils.loadAnimation(this, R.anim.shake);
+
+        if (pregunta1.getText().toString().trim().isEmpty()) {
+            pregunta1.setError("Obligatorio");
+            pregunta1.startAnimation(shake);
+            valido = false;
+        }
+
+        if (pregunta2.getText().toString().trim().isEmpty()) {
+            pregunta2.setError("Obligatorio");
+            pregunta2.startAnimation(shake);
+            valido = false;
+        }
+
+        if (pregunta3.getCheckedRadioButtonId() == -1) {
+            pregunta3.startAnimation(shake);
+            valido = false;
+        }
+        if (pregunta4.getCheckedRadioButtonId() == -1) {
+            pregunta4.startAnimation(shake);
+            valido = false;
+        }
+        if (pregunta5.getCheckedRadioButtonId() == -1) {
+            pregunta5.startAnimation(shake);
+            valido = false;
+        }
+
+        if (!valido) {
+            Toast.makeText(this,"Responde todas las preguntas",Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        btnContinuarTest.setEnabled(false);
+        progressContinuar.setVisibility(android.view.View.VISIBLE);
+
+        crearReporte();
+    }
+
+    private void crearReporte(){
+        Map<String,Object> body = new HashMap<>();
+        body.put("aspiranteId", aspiranteId);
+
+        TestApi api = ApiClient.getClient().create(TestApi.class);
+
+        api.startTest(body).enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                if(response.isSuccessful() && response.body()!=null){
+                    Number reporteNumber = (Number) response.body().get("reporteId");
+                    if(reporteNumber == null){
+                        errorUI("Error: reporteId nulo");
+                        return;
+                    }
+                    int reporteId = reporteNumber.intValue();
+                    enviarPretest(reporteId);
+                } else {
+                    Log.e("START_TEST_ERROR", "Código: " + response.code());
+                    errorUI("Error creando reporte");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+                errorUI("Error de conexión");
+            }
+        });
+    }
+
+    private void enviarPretest(int reporteId){
+        String r3 = ((RadioButton)findViewById(pregunta3.getCheckedRadioButtonId())).getText().toString();
+        String r4 = ((RadioButton)findViewById(pregunta4.getCheckedRadioButtonId())).getText().toString();
+        String r5 = ((RadioButton)findViewById(pregunta5.getCheckedRadioButtonId())).getText().toString();
+
+        List<String> answers = new ArrayList<>();
+        answers.add(pregunta1.getText().toString().trim());
+        answers.add(pregunta2.getText().toString().trim());
+        answers.add(r3);
+        answers.add(r4);
+        answers.add(r5);
+
+        Map<String,Object> body = new HashMap<>();
+        body.put("aspiranteId", aspiranteId);
+        body.put("reporteId", reporteId);
+        body.put("answers", answers);
+
+        TestApi api = ApiClient.getClient().create(TestApi.class);
+        api.pretest(body).enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                if(response.isSuccessful() && response.body()!=null){
+                    String sessionId = (String) response.body().get("session_id");
+
+                    Intent intent = new Intent(PretestActivity.this, Test.class);
+                    intent.putExtra("session_id",sessionId);
+                    intent.putExtra("reporteId",reporteId);
+                    intent.putExtra("aspiranteId",aspiranteId);
+
+                    startActivity(intent);
+                    finish();
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                } else {
+                    errorUI("Error enviando pretest");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+                errorUI("Error conexión pretest");
+            }
+        });
+    }
+
+    private void errorUI(String mensaje){
+        Toast.makeText(PretestActivity.this, mensaje, Toast.LENGTH_LONG).show();
+        btnContinuarTest.setEnabled(true);
+        progressContinuar.setVisibility(android.view.View.GONE);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (avatarHelper != null) avatarHelper.detenerSonido();
+    }
+}

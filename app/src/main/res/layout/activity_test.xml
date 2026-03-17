@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/fondo_gmn"
+    tools:context=".controller.Test">
+
+    <LinearLayout
+        android:id="@+id/linearLayout10"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:background="@color/transparente"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="15dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
+
+        <WebView
+            android:id="@+id/webAvatar"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginEnd="15dp"
+            android:background="@android:color/transparent" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/txtTitulo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/test"
+                android:textColor="#ffffff"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/subTitulo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/formacion"
+                android:textColor="#e6f7ff"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/bg_boton_acceso"
+        app:layout_constraintTop_toBottomOf="@id/linearLayout10"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="100dp"
+            android:padding="24dp">
+
+            <!-- Contador -->
+            <TextView
+                android:id="@+id/txtContador"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Pregunta 1 de 10"
+                android:textSize="16sp"
+                android:textColor="#555555"
+                android:gravity="center"
+                android:paddingBottom="12dp"/>
+
+            <ProgressBar
+                android:id="@+id/progressTest"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_marginBottom="20dp"
+                android:max="100"
+                android:progress="10"
+                android:progressTint="@color/violeta"
+                android:progressBackgroundTint="#E0E0E0"/>
+
+            <TextView
+                android:id="@+id/txtPregunta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Cargando pregunta..."
+                android:textColor="#000000"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:paddingBottom="24dp"/>
+
+            <ImageView
+                android:id="@+id/imgLoader"
+                android:layout_width="220dp"
+                android:layout_height="220dp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="20dp"
+                android:visibility="visible"/>
+
+
+            <Button
+                android:id="@+id/btn5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Me encanta"
+                android:textSize="18dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/btn_meencanta"
+                android:backgroundTint="@null"
+                app:backgroundTint="@null"
+                android:visibility="gone"/>
+
+            <Button
+                android:id="@+id/btn4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Me gusta"
+                android:textSize="18dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/btn_megusta"
+                android:backgroundTint="@null"
+                app:backgroundTint="@null"
+                android:visibility="gone"/>
+
+            <Button
+                android:id="@+id/btn3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Neutral"
+                android:textSize="18dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/btn_neutral"
+                android:backgroundTint="@null"
+                app:backgroundTint="@null"
+                android:visibility="gone"/>
+
+            <Button
+                android:id="@+id/btn2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No me gusta"
+                android:textSize="18dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/btn_nomegusta"
+                android:backgroundTint="@null"
+                app:backgroundTint="@null"
+                android:visibility="gone"/>
+
+            <Button
+                android:id="@+id/btn1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Odio esto"
+                android:textSize="18dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/btn_odioesto"
+                android:backgroundTint="@null"
+                app:backgroundTint="@null"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

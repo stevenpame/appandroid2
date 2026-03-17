@@ -1,0 +1,50 @@
+<resources>
+    <string name="app_name">AVI</string>
+
+    <string name="bienvenido">Bienvenido</string>
+    <string name="descripcion_inicio">Ingresa a nuestra app y descubre tu vocacion.</string>
+    <string name="inicio">INICIAR SESION</string>
+    <string name="registro">REGISTRO</string>
+
+    <string name="nombre">👤Nombre</string>
+    <string name="telefono">📞Telefono</string>
+    <string name="correo">📧Correo</string>
+    <string name="contraseña">🔐Contraseña</string>
+    <string name="registrarbtn">Registrar</string>
+
+    <string name="dtv"><u>Descubre tu Vocación</u></string>
+    <string name="tv">Test Vocacional</string>
+    <string name="ar">Accesos Rapidos</string>
+    <string name="avi">AVI</string>
+
+    <string name="cuenta">Cuenta</string>
+    <string name="preferencias">Preferencias</string>
+    <string name="soporte">Soporte</string>
+    <string name="Csesion">Cerrar Sesion</string>
+    <string name="formacion">Formación CTPI Popayán</string>
+
+    <string name="edperfil">Editar Perfil</string>
+    <string name="cambiar">Cambiar Contraseña</string>
+    <string name="Lenguaje">Cambiar Idioma</string>
+    <string name="noti">Notificaciones</string>
+    <string name="ayuda">Centro de Ayuda</string>
+    <string name="info">Acerca de</string>
+    <string name="programas">Programas</string>
+    <string name="id">🪪Identificacion</string>
+    <string name="perfil">Perfil</string>
+    <string name="test">Test Vocacional</string>
+    <string name="mapa">Mapa</string>
+    <string name="home">Home</string>
+
+    <string name="dur_desc">Aproximadamente 15–20 minutos</string>
+    <string name="pre_desc">30 preguntas sobre tus interes y habilidades</string>
+    <string name="res_desc">Recomendaciones personalizadas de programas SENA</string>
+
+
+    <string-array name="spProgramas">
+        <item>Tecnico</item>
+        <item>Nombre del programa</item>
+    </string-array>
+
+
+</resources>

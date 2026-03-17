@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="verdeinstitucional">#39A900</color>
+    <color name="verdesecundario">#39A900</color>
+    <color name="azuloscurosena">#00304D</color>
+    <color name="moradosena">#71277A</color>
+    <color name="amarillosena">#FDC300</color>
+    <color name="azulclaro">#50E5F9</color>
+    <color name="azulclarofondo">#6D50E5F9</color>
+    <color name="blue">#0F4C75</color>
+    <color name="gris">#646363</color>
+    <color name="rojo">#FF0000</color>
+    <color name="transparente">#00FFFFFF</color>
+    <color name="violeta">#4A148C</color>
+</resources>

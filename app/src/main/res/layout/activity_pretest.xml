@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/fondo_gmn"
+    tools:context=".controller.PretestActivity">
+
+    <LinearLayout
+        android:id="@+id/linearLayout10"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:background="@color/transparente"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="15dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
+
+        <WebView
+            android:id="@+id/webAvatar"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginEnd="15dp"
+            android:background="@android:color/transparent" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/txtTitulo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pre-Test"
+                android:textColor="#ffffff"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/subTitulo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/formacion"
+                android:textColor="#e6f7ff"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:background="@drawable/scrollbg"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout10">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <!-- PREGUNTA 1 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="8dp"
+                android:text="1. ¿Qué querías ser cuando eras niño/a y por qué?"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/pregunta1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:background="@drawable/edtbg"
+                android:elevation="3dp"
+                android:hint="Escribe tu respuesta..."
+                android:inputType="textMultiLine"
+                android:minLines="3"
+                android:padding="12dp" />
+
+            <!-- PREGUNTA 2 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="8dp"
+                android:text="2. Si tuvieras que elegir una actividad para hacer 4 horas seguidas sin aburrirte, ¿cuál sería?"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/pregunta2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:elevation="3dp"
+                android:background="@drawable/edtbg"
+                android:hint="Escribe tu respuesta..."
+                android:inputType="textMultiLine"
+                android:minLines="3"
+                android:padding="12dp" />
+
+            <!-- PREGUNTA 3 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="8dp"
+                android:text="3. ¿Qué tipo de problemas disfrutas resolver más?"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <RadioGroup
+                android:id="@+id/pregunta3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp">
+
+                <RadioButton android:text="Técnicos o mecánicos" />
+
+                <RadioButton android:text="Científicos o de investigación" />
+
+                <RadioButton android:text="Creativos o artísticos" />
+
+                <RadioButton android:text="Personales o sociales" />
+
+                <RadioButton android:text="Comerciales o estratégicos" />
+
+                <RadioButton android:text="Administrativos u organizativos" />
+            </RadioGroup>
+
+            <!-- PREGUNTA 4 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="8dp"
+                android:text="4. En un trabajo ideal, ¿qué valoras más?"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <RadioGroup
+                android:id="@+id/pregunta4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp">
+
+                <RadioButton android:text="Estabilidad y orden" />
+
+                <RadioButton android:text="Libertad creativa" />
+
+                <RadioButton android:text="Impacto en otras personas" />
+
+                <RadioButton android:text="Liderar proyectos" />
+
+                <RadioButton android:text="Descubrir cosas nuevas" />
+
+                <RadioButton android:text="Trabajar con herramientas o tecnología" />
+            </RadioGroup>
+
+            <!-- PREGUNTA 5 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="8dp"
+                android:text="5. Cuando trabajas en equipo, ¿qué rol asumes naturalmente?"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <RadioGroup
+                android:id="@+id/pregunta5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp">
+
+                <RadioButton android:text="El que organiza" />
+
+                <RadioButton android:text="El que propone ideas nuevas" />
+
+                <RadioButton android:text="El que analiza datos" />
+
+                <RadioButton android:text="El que ejecuta tareas prácticas" />
+
+                <RadioButton android:text="El que motiva y guía" />
+
+                <RadioButton android:text="El que cuida el ambiente y apoya" />
+
+            </RadioGroup>
+
+            <!-- BOTÓN CONTINUAR -->
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_marginBottom="24dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnContinuarTest"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Continuar"
+                    android:textSize="20sp"
+                    android:textColor="@color/white"
+                    android:background="@drawable/btnfondo"
+                    android:backgroundTint="@null"
+                    app:cornerRadius="12dp"/>
+
+                <ProgressBar
+                    android:id="@+id/progressContinuar"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    android:visibility="gone"/>
+
+            </FrameLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

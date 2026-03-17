@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/fondo_gmn">
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="24dp">
+
+            <!-- TITULO -->
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/bienvenido"
+                android:textColor="@color/white"
+                android:textSize="42sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="20dp"/>
+
+
+            <!-- BURBUJA + GATO -->
+
+            <FrameLayout
+                android:layout_width="280dp"
+                android:layout_height="280dp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="-80dp">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/burbuja_circular"/>
+
+                <ImageView
+                    android:id="@+id/gato"
+                    android:layout_width="220dp"
+                    android:layout_height="220dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/gato"
+                    android:scaleType="fitCenter"/>
+
+            </FrameLayout>
+
+
+            <!-- CARD BOTONES -->
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardBotones"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginEnd="30dp"
+                app:cardCornerRadius="25dp"
+                app:cardElevation="15dp"
+                app:cardBackgroundColor="@color/white">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="25dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btniniciosesion"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:text="@string/inicio"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:background="@drawable/btn_amarillo"
+                        app:backgroundTint="@null"
+                        app:cornerRadius="30dp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnregistro"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:text="@string/registro"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:background="@drawable/btn_azul"
+                        app:backgroundTint="@null"
+                        app:cornerRadius="30dp"
+                        android:layout_marginTop="15dp"/>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
