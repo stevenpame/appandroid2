@@ -41,6 +41,15 @@ public class PretestActivity extends AppCompatActivity {
     private int aspiranteId;
     private String token;
 
+    private int currentReadingIndex = -1;
+    private final String[] preguntasText = {
+        "Pregunta 1. ¿Qué querías ser cuando eras niño o niña y por qué?",
+        "Pregunta 2. Si tuvieras que elegir una actividad para hacer 4 horas seguidas sin aburrirte, ¿cuál sería?",
+        "Pregunta 3. ¿Qué tipo de problemas disfrutas resolver más?",
+        "Pregunta 4. En un trabajo ideal, ¿qué valoras más?",
+        "Pregunta 5. Cuando trabajas en equipo, ¿qué rol asumes naturalmente?"
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,22 +78,18 @@ public class PretestActivity extends AppCompatActivity {
 
         avatarHelper = new AvatarHelper(this, webAvatar);
         
-        // El avatar saluda y da la bienvenida con voz
+        // Iniciar secuencia de lectura automática
         new android.os.Handler().postDelayed(() -> {
             avatarHelper.ejecutarAnimacion("Wave", 2000);
-            avatarHelper.speak("Hola, bienvenido al pretest. Por favor responde las siguientes preguntas para conocerte mejor.");
-        }, 1000);
+            avatarHelper.speak("Hola, bienvenido al pretest. Voy a leerte las preguntas para ayudarte.");
+            
+            // Empezar a leer la primera después de la bienvenida
+            new android.os.Handler().postDelayed(() -> {
+                readNextPregunta();
+            }, 5000);
+        }, 1500);
 
-        pregunta1.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) avatarHelper.speak("¿Qué conocimientos previos tienes sobre el área?");
-        });
-        pregunta2.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) avatarHelper.speak("¿Por qué te interesa este programa?");
-        });
-        
-        animarRadioGroup(pregunta3);
-        animarRadioGroup(pregunta4);
-        animarRadioGroup(pregunta5);
+        setupListeners();
 
         findViewById(R.id.main).startAnimation(
                 AnimationUtils.loadAnimation(this, R.anim.fade_in)
@@ -97,15 +102,73 @@ public class PretestActivity extends AppCompatActivity {
         });
     }
 
-    private void animarRadioGroup(RadioGroup group){
-        group.setOnCheckedChangeListener((radioGroup, checkedId) -> {
-            RadioButton seleccionado = findViewById(checkedId);
-            if(seleccionado != null){
-                Animation zoom = AnimationUtils.loadAnimation(this, R.anim.zoom_in);
-                seleccionado.startAnimation(zoom);
-                avatarHelper.speak("Entendido");
+    private void readNextPregunta() {
+        currentReadingIndex++;
+        if (currentReadingIndex < preguntasText.length) {
+            avatarHelper.speak(preguntasText[currentReadingIndex]);
+            // Enfocar visualmente el campo correspondiente
+            focusPregunta(currentReadingIndex);
+        }
+    }
+
+    private void focusPregunta(int index) {
+        switch (index) {
+            case 0: pregunta1.requestFocus(); break;
+            case 1: pregunta2.requestFocus(); break;
+            case 2: pregunta3.requestFocus(); break;
+            case 3: pregunta4.requestFocus(); break;
+            case 4: pregunta5.requestFocus(); break;
+        }
+    }
+
+    private void setupListeners() {
+        // Si el usuario toca manualmente una pregunta, actualizamos el índice para que sepa dónde está
+        pregunta1.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                currentReadingIndex = 0;
+                avatarHelper.speak(preguntasText[0]);
             }
         });
+        pregunta2.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                currentReadingIndex = 1;
+                avatarHelper.speak(preguntasText[1]);
+            }
+        });
+
+        pregunta3.setOnCheckedChangeListener((group, checkedId) -> {
+            currentReadingIndex = 2;
+            animarSeleccion(checkedId);
+            // Al responder, podemos leer la siguiente automáticamente después de un pequeño delay
+            checkAutoReadNext(3);
+        });
+
+        pregunta4.setOnCheckedChangeListener((group, checkedId) -> {
+            currentReadingIndex = 3;
+            animarSeleccion(checkedId);
+            checkAutoReadNext(4);
+        });
+
+        pregunta5.setOnCheckedChangeListener((group, checkedId) -> {
+            currentReadingIndex = 4;
+            animarSeleccion(checkedId);
+        });
+    }
+
+    private void checkAutoReadNext(int nextIndex) {
+        new android.os.Handler().postDelayed(() -> {
+            if (currentReadingIndex < nextIndex) {
+                readNextPregunta();
+            }
+        }, 2000);
+    }
+
+    private void animarSeleccion(int checkedId) {
+        RadioButton seleccionado = findViewById(checkedId);
+        if(seleccionado != null){
+            Animation zoom = AnimationUtils.loadAnimation(this, R.anim.zoom_in);
+            seleccionado.startAnimation(zoom);
+        }
     }
 
     private void validarYContinuar() {
@@ -138,7 +201,7 @@ public class PretestActivity extends AppCompatActivity {
         }
 
         if (!valido) {
-            avatarHelper.speak("Por favor, responde todas las preguntas antes de continuar.");
+            avatarHelper.speak("Por favor, completa todas las respuestas para poder continuar.");
             Toast.makeText(this,"Responde todas las preguntas",Toast.LENGTH_LONG).show();
             return;
         }
