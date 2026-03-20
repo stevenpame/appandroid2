@@ -5,42 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Avatar Viewer</title>
     <style>
-        body { 
-            margin: 0; 
-            background-color: transparent; 
-            overflow: hidden; 
-            pointer-events: none; 
-            user-select: none;
-            -webkit-user-select: none;
-        }
+        body { margin: 0; background-color: transparent; overflow: hidden; }
         model-viewer {
-            width: 100%;
-            height: 100vh;
+            width: 100vw; height: 100vh;
             background-color: transparent;
             --poster-color: transparent;
         }
     </style>
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <script type="module" src="/assets/model-viewer-umd.min.js"></script>
 </head>
 <body>
-    <model-viewer 
+<model-viewer
         id="avatar"
-        src="https://models.readyplayer.me/699da146f005c9608f5ee8aa.glb" 
-        alt="Ready Player Me Avatar"
-        camera-orbit="0deg 75deg 0.7m" 
-        camera-target="0m 1.65m 0m"
+        src="/assets/src/avatar.glb"
+        alt="Avatar Interactivo"
+        camera-orbit="0deg 75deg 0.8m"
+        camera-target="0m 1.6m 0m"
         field-of-view="30deg"
+        autoplay
+        animation-name="Idle"
         shadow-intensity="1"
-        environment-image="neutral"
         exposure="1"
-        interaction-prompt="none">
-    </model-viewer>
+        loading="eager"
+        disable-zoom
+        disable-pan>
+</model-viewer>
 
-    <script>
-        function loadModel(url) {
-            const modelViewer = document.querySelector('#avatar');
-            modelViewer.src = url;
+<script>
+    const modelViewer = document.querySelector('#avatar');
+    let isLoaded = false;
+
+    modelViewer.addEventListener('load', () => {
+        isLoaded = true;
+    });
+
+    // Clic en el avatar para saludar
+    modelViewer.addEventListener('click', () => {
+        playAnimation('Wave', 2000);
+    });
+
+    window.playAnimation = function(animName, duration = 0) {
+        if (!modelViewer || !isLoaded) return;
+
+        modelViewer.animationName = animName;
+        modelViewer.play();
+
+        if (duration > 0) {
+            setTimeout(() => {
+                modelViewer.animationName = "Idle";
+            }, duration);
         }
-    </script>
+    };
+
+    window.assistantResponse = function(command) {
+        if (!isLoaded) return;
+        
+        const cmd = command.toLowerCase();
+        if(cmd.includes("hola") || cmd.includes("saluda")) {
+            playAnimation('Wave', 2000);
+        } else if(cmd.includes("habla") || cmd.includes("explica")) {
+            playAnimation('Talk', 3000);
+        } else {
+            playAnimation('Idle');
+        }
+    };
+</script>
 </body>
 </html>

@@ -3,10 +3,8 @@ package com.pipe.avi.controller;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,7 +18,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.pipe.avi.R;
 import com.pipe.avi.network.ApiClient;
 import com.pipe.avi.network.TestApi;
-import com.pipe.avi.utils.AvatarHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,27 +69,26 @@ public class PretestActivity extends AppCompatActivity {
 
         avatarHelper = new AvatarHelper(this, webAvatar);
         
-        // El avatar saluda al entrar
-        reproducirVoz("bienvenida_pretest");
+        // El avatar saluda y da la bienvenida con voz
+        new android.os.Handler().postDelayed(() -> {
+            avatarHelper.ejecutarAnimacion("Wave", 2000);
+            avatarHelper.speak("Hola, bienvenido al pretest. Por favor responde las siguientes preguntas para conocerte mejor.");
+        }, 1000);
 
-        // Al enfocar cada pregunta de texto, el avatar la habla
         pregunta1.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) reproducirVoz("pretest_p1");
+            if (hasFocus) avatarHelper.speak("¿Qué conocimientos previos tienes sobre el área?");
         });
         pregunta2.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) reproducirVoz("pretest_p2");
+            if (hasFocus) avatarHelper.speak("¿Por qué te interesa este programa?");
         });
         
-        // Las preguntas de opción múltiple se manejan en animarRadioGroup para evitar redundancia
+        animarRadioGroup(pregunta3);
+        animarRadioGroup(pregunta4);
+        animarRadioGroup(pregunta5);
 
-        // Animación de entrada de pantalla
         findViewById(R.id.main).startAnimation(
                 AnimationUtils.loadAnimation(this, R.anim.fade_in)
         );
-
-        animarRadioGroup(pregunta3, "pretest_p3");
-        animarRadioGroup(pregunta4, "pretest_p4");
-        animarRadioGroup(pregunta5, "pretest_p5");
 
         btnContinuarTest.setOnClickListener(v -> {
             Animation press = AnimationUtils.loadAnimation(this, R.anim.boton_press);
@@ -101,24 +97,13 @@ public class PretestActivity extends AppCompatActivity {
         });
     }
 
-    private void reproducirVoz(String nombreAudio) {
-        int resId = getResources().getIdentifier(nombreAudio, "raw", getPackageName());
-        if (resId != 0) {
-            avatarHelper.cargarAvatarConSonido(resId);
-        } else {
-            Log.w("AVATAR_VOZ", "No se encontró el archivo de audio: " + nombreAudio);
-        }
-    }
-
-    private void animarRadioGroup(RadioGroup group, String audioPregunta){
+    private void animarRadioGroup(RadioGroup group){
         group.setOnCheckedChangeListener((radioGroup, checkedId) -> {
             RadioButton seleccionado = findViewById(checkedId);
             if(seleccionado != null){
                 Animation zoom = AnimationUtils.loadAnimation(this, R.anim.zoom_in);
                 seleccionado.startAnimation(zoom);
-                
-                // Reproducir voz de la pregunta al interactuar
-                reproducirVoz(audioPregunta);
+                avatarHelper.speak("Entendido");
             }
         });
     }
@@ -153,39 +138,34 @@ public class PretestActivity extends AppCompatActivity {
         }
 
         if (!valido) {
+            avatarHelper.speak("Por favor, responde todas las preguntas antes de continuar.");
             Toast.makeText(this,"Responde todas las preguntas",Toast.LENGTH_LONG).show();
             return;
         }
 
         btnContinuarTest.setEnabled(false);
         progressContinuar.setVisibility(android.view.View.VISIBLE);
-
         crearReporte();
     }
 
     private void crearReporte(){
         Map<String,Object> body = new HashMap<>();
         body.put("aspiranteId", aspiranteId);
-
         TestApi api = ApiClient.getClient().create(TestApi.class);
-
         api.startTest(body).enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
                 if(response.isSuccessful() && response.body()!=null){
                     Number reporteNumber = (Number) response.body().get("reporteId");
-                    if(reporteNumber == null){
+                    if(reporteNumber != null){
+                        enviarPretest(reporteNumber.intValue());
+                    } else {
                         errorUI("Error: reporteId nulo");
-                        return;
                     }
-                    int reporteId = reporteNumber.intValue();
-                    enviarPretest(reporteId);
                 } else {
-                    Log.e("START_TEST_ERROR", "Código: " + response.code());
                     errorUI("Error creando reporte");
                 }
             }
-
             @Override
             public void onFailure(Call<Map<String, Object>> call, Throwable t) {
                 errorUI("Error de conexión");
@@ -216,12 +196,10 @@ public class PretestActivity extends AppCompatActivity {
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
                 if(response.isSuccessful() && response.body()!=null){
                     String sessionId = (String) response.body().get("session_id");
-
                     Intent intent = new Intent(PretestActivity.this, Test.class);
                     intent.putExtra("session_id",sessionId);
                     intent.putExtra("reporteId",reporteId);
                     intent.putExtra("aspiranteId",aspiranteId);
-
                     startActivity(intent);
                     finish();
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
@@ -229,7 +207,6 @@ public class PretestActivity extends AppCompatActivity {
                     errorUI("Error enviando pretest");
                 }
             }
-
             @Override
             public void onFailure(Call<Map<String, Object>> call, Throwable t) {
                 errorUI("Error conexión pretest");
@@ -245,7 +222,7 @@ public class PretestActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        if (avatarHelper != null) avatarHelper.destroy();
         super.onDestroy();
-        if (avatarHelper != null) avatarHelper.detenerSonido();
     }
 }

@@ -3,10 +3,8 @@ package com.pipe.avi.controller;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -25,7 +23,6 @@ import com.pipe.avi.model.ResultResponse;
 import com.pipe.avi.model.RiasecScores;
 import com.pipe.avi.network.RetrofitClient;
 import com.pipe.avi.network.TestApi;
-import com.pipe.avi.utils.AvatarHelper;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -94,13 +91,6 @@ public class Test extends AppCompatActivity {
         btn1.setOnClickListener(v -> responder(1));
     }
 
-    private void reproducirVoz(String nombreAudio) {
-        int resId = getResources().getIdentifier(nombreAudio, "raw", getPackageName());
-        if (resId != 0) {
-            avatarHelper.cargarAvatarConSonido(resId);
-        }
-    }
-
     private void iniciarRIASEC() {
         riasecScores.setR(0);
         riasecScores.setI(0);
@@ -125,8 +115,8 @@ public class Test extends AppCompatActivity {
                     txtPregunta.setText(pregunta.getQuestion());
                     txtContador.setText("Pregunta " + preguntaActual + " de " + totalPreguntas);
                     
-                    // Hablar pregunta dinámicamente
-                    reproducirVoz("test_p" + preguntaActual);
+                    // El avatar lee la pregunta
+                    avatarHelper.speak(pregunta.getQuestion());
                     
                     mostrarPregunta();
                 } else {
@@ -214,7 +204,6 @@ public class Test extends AppCompatActivity {
 
     private void finalizarTest() {
         TestApi api = RetrofitClient.getClient().create(TestApi.class);
-
         Map<String, Object> body = new HashMap<>();
         body.put("reporteId", reporteId);
         body.put("riasec_scores", riasecScores);
@@ -224,12 +213,10 @@ public class Test extends AppCompatActivity {
             public void onResponse(Call<ResultResponse> call, Response<ResultResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     ResultResponse resultado = response.body();
-
                     List<ResultResponse.Recommendation> recomendaciones =
                             resultado.getResultadoIA() != null ?
                                     resultado.getResultadoIA().getRecommendations() : null;
 
-                    // Enviar a Resultados
                     Intent intent = new Intent(Test.this, Resultados.class);
                     intent.putExtra("resultadoIA", (Serializable) resultado);
                     intent.putExtra("aspiranteId", aspiranteId);
@@ -238,7 +225,6 @@ public class Test extends AppCompatActivity {
                     finish();
                 }
             }
-
             @Override
             public void onFailure(Call<ResultResponse> call, Throwable t) {
                 Toast.makeText(Test.this, "Error finalizando test", Toast.LENGTH_LONG).show();
@@ -248,7 +234,7 @@ public class Test extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        if (avatarHelper != null) avatarHelper.destroy();
         super.onDestroy();
-        if (avatarHelper != null) avatarHelper.detenerSonido();
     }
 }

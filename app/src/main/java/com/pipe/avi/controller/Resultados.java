@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -31,6 +30,7 @@ public class Resultados extends AppCompatActivity {
     private Button btnVerInfo;
     private ImageButton btnhome, btnusuario;
     private WebView webAvatar;
+    private AvatarHelper avatarHelper;
 
     private ArrayList<String> programNames = new ArrayList<>();
     private ArrayList<Integer> programIds = new ArrayList<>();
@@ -60,24 +60,16 @@ public class Resultados extends AppCompatActivity {
         slideUp = AnimationUtils.loadAnimation(this, R.anim.slide_up);
         zoomIn = AnimationUtils.loadAnimation(this, R.anim.zoom_in);
 
-        // 🔥 RECIBIR ASPIRANTE ID
         aspiranteId = getIntent().getIntExtra("aspiranteId", 0);
-        System.out.println("ASPIRANTE ID EN RESULTADOS: " + aspiranteId);
-        if (aspiranteId == 0) {
-            Toast.makeText(this, "Error: aspiranteId no recibido", Toast.LENGTH_LONG).show();
-        }
-
-        configurarAvatar();
+        
+        avatarHelper = new AvatarHelper(this, webAvatar);
+        
         btnhome.setOnClickListener(v -> finish());
-
         btnusuario.setOnClickListener(v ->
                 startActivity(new Intent(Resultados.this, User.class)));
 
-        // Recibir resultados IA
         ResultResponse resultado =
                 (ResultResponse) getIntent().getSerializableExtra("resultadoIA");
-
-        // Recibir recomendaciones (lista completa con IDs)
         List<ResultResponse.Recommendation> recomendaciones =
                 (List<ResultResponse.Recommendation>) getIntent().getSerializableExtra("recomendaciones");
 
@@ -88,7 +80,6 @@ public class Resultados extends AppCompatActivity {
 
         mostrarResultados(resultado, recomendaciones);
 
-        // Enviar ID a InfoProgramas al presionar btnVerInfo
         btnVerInfo.setOnClickListener(v -> {
             Intent intent = new Intent(Resultados.this, InfoProgramas.class);
             intent.putStringArrayListExtra("programas", programNames);
@@ -97,14 +88,6 @@ public class Resultados extends AppCompatActivity {
             intent.putExtra("aspiranteId", aspiranteId);
             startActivity(intent);
         });
-    }
-
-    private void configurarAvatar() {
-        WebSettings webSettings = webAvatar.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-        webSettings.setDomStorageEnabled(true);
-        webAvatar.setBackgroundColor(0);
-        webAvatar.loadUrl("file:///android_asset/avatar_viewer.html");
     }
 
     private void mostrarResultados(ResultResponse result, List<ResultResponse.Recommendation> recomendaciones) {
@@ -124,30 +107,30 @@ public class Resultados extends AppCompatActivity {
         );
         txtPuntajes.startAnimation(fadeIn);
 
-        mostrarMensajeGato("Analizando tu perfil...");
+        String msg1 = "¡Felicidades! Analizando tu perfil...";
+        mostrarMensajeGato(msg1);
+        avatarHelper.speak(msg1);
 
         if (recomendaciones != null && !recomendaciones.isEmpty()) {
-
             new android.os.Handler().postDelayed(() -> {
-                mostrarMensajeGato("Según tu perfil te recomendamos:");
+                String msg2 = "Según tu perfil te recomendamos los siguientes programas.";
+                mostrarMensajeGato(msg2);
+                avatarHelper.speak(msg2);
 
                 int limite = Math.min(3, recomendaciones.size());
                 int delay = 0;
 
                 for (int i = 0; i < limite; i++) {
                     ResultResponse.Recommendation rec = recomendaciones.get(i);
-
                     programNames.add(rec.getName());
                     programIds.add(rec.getProgramaId());
                     recomendacionIds.add(rec.getIdRECOMENDACION());
 
-                    int finalI = i;
                     new android.os.Handler().postDelayed(() ->
                             agregarTarjetaPrograma(rec.getName()), delay);
-
                     delay += 250;
                 }
-            }, 1200);
+            }, 4000);
         }
 
         btnVerInfo.setVisibility(View.VISIBLE);
@@ -157,17 +140,12 @@ public class Resultados extends AppCompatActivity {
     private void agregarTarjetaPrograma(String nombre) {
         View view = LayoutInflater.from(this)
                 .inflate(R.layout.item_recomendacion, layoutRecomendaciones, false);
-
         TextView txtNombre = view.findViewById(R.id.txtNombre);
         TextView txtNivel = view.findViewById(R.id.txtNivel);
-
         txtNombre.setText(nombre);
-
         String nivel = nombre.toLowerCase().contains("tecnico") || nombre.toLowerCase().contains("técnico")
                 ? "Nivel: Técnico" : "Nivel: Tecnólogo";
-
         txtNivel.setText(nivel);
-
         view.startAnimation(zoomIn);
         layoutRecomendaciones.addView(view);
     }
@@ -179,12 +157,14 @@ public class Resultados extends AppCompatActivity {
                 int finalI = i;
                 runOnUiThread(() ->
                         txtBurbuja.setText(mensaje.substring(0, finalI)));
-                try {
-                    Thread.sleep(35);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                try { Thread.sleep(35); } catch (InterruptedException e) { e.printStackTrace(); }
             }
         }).start();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (avatarHelper != null) avatarHelper.destroy();
+        super.onDestroy();
     }
 }

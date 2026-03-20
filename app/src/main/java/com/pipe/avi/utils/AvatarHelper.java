@@ -2,65 +2,86 @@ package com.pipe.avi.utils;
 
 import android.content.Context;
 import android.media.MediaPlayer;
+import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.pipe.avi.R;
-
 public class AvatarHelper {
 
-    private final Context context;
-    private final WebView webView;
+    private Context context;
+    private WebView webView;
     private MediaPlayer mediaPlayer;
 
     public AvatarHelper(Context context, WebView webView) {
         this.context = context;
         this.webView = webView;
-        configurarWebView();
+        setupAvatar(webView);
     }
 
-    private void configurarWebView() {
+    public static void setupAvatar(WebView webView) {
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
+        
+        // Habilitar acceso a archivos locales (assets)
+        webSettings.setAllowFileAccess(true);
+        webSettings.setAllowContentAccess(true);
+        
+        // Desactivar interacciones para que el usuario no mueva el avatar
+        webView.setOnTouchListener((v, event) -> true);
+        webView.setClickable(false);
+        webView.setFocusable(false);
+
         webView.setBackgroundColor(0); // Transparente
         
-        // Evitar que abra el navegador externo
+        // Importante: Aceleración de hardware para evitar errores Mali
+        webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+
         webView.setWebViewClient(new WebViewClient());
         
+        // Carga el HTML desde assets
         webView.loadUrl("file:///android_asset/avatar_viewer.html");
     }
 
-    /**
-     * Carga el avatar y opcionalmente reproduce un sonido
-     * @param rawSoundResourceId ID del recurso de audio (ej: R.raw.bienvenida) o 0 si no hay sonido
-     */
-    public void cargarAvatarConSonido(int rawSoundResourceId) {
-        if (rawSoundResourceId != 0) {
-            detenerSonido();
-            mediaPlayer = MediaPlayer.create(context, rawSoundResourceId);
-            if (mediaPlayer != null) {
-                mediaPlayer.setOnCompletionListener(mp -> detenerSonido());
-                mediaPlayer.start();
-            }
+    public void cargarAvatarConSonido(int resId) {
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+        }
+        
+        setSpeaking(true);
+        
+        mediaPlayer = MediaPlayer.create(context, resId);
+        if (mediaPlayer != null) {
+            mediaPlayer.setOnCompletionListener(mp -> {
+                setSpeaking(false);
+                mp.release();
+                mediaPlayer = null;
+            });
+            mediaPlayer.start();
+        } else {
+            setSpeaking(false);
         }
     }
 
-    public void detenerSonido() {
+    private void setSpeaking(boolean speaking) {
+        String anim = speaking ? "Talk" : "Idle";
+        webView.post(() -> webView.evaluateJavascript("playAnimation('" + anim + "')", null));
+    }
+
+    public void animarHablar(int durationMs) {
+        webView.post(() -> webView.evaluateJavascript("playAnimation('Talk', " + durationMs + ")", null));
+    }
+
+    public void saludar() {
+        animarHablar(2000);
+    }
+
+    public void destroy() {
         if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
-            }
             mediaPlayer.release();
             mediaPlayer = null;
         }
-    }
-
-    /**
-     * Permite cambiar el modelo 3D dinámicamente llamando a la función JS definida en el HTML
-     */
-    public void cambiarModelo(String urlGlb) {
-        webView.evaluateJavascript("loadModel('" + urlGlb + "')", null);
     }
 }
